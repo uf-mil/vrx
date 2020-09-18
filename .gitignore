@@ -1,0 +1,47 @@
+# Aspell files
+*.bak
+
+# Sphinx output
+docs/_build
+
+# Editor cache files
+*.swo
+*.swp
+*.swn
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Python compiled files
+*.pyc
+
+
+vrx_gazebo/models/dock_2018_dynamic/model.sdf
+vrx_gazebo/models/robotx_2018_qualifying_avoid_obstacles_buoys/model.sdf
