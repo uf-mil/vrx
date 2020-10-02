@@ -2,5 +2,5 @@
   <include file="$(find vrx_gazebo)/launch/sandisland.launch">
     <arg name="gui" value="false" />
   </include>
-  <test test-name="sandisland_test" pkg="vrx_gazebo" type="sandisland_test" time-limit="360.0" />
+  <test test-name="sandisland_test" pkg="vrx_gazebo" type="sandisland_test" time-limit="600.0" />
 </launch>
