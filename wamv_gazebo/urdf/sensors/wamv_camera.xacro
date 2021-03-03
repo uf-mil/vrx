@@ -15,13 +15,13 @@
           <mesh filename="package://vrx_gazebo/models/mono_camera/mesh/mono_camera.dae"/>
         </geometry>
       </visual>
-      <collision name="${name}_lens_collision">
+      <collision>
         <origin xyz="0.018 0 0" rpy="0 ${pi/2} 0"/>
         <geometry>
           <cylinder radius="0.015" length="0.042"/>
         </geometry>
       </collision>
-      <collision name="${name}_box_collision">
+      <collision>
         <origin xyz="-0.0205 0 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.036 0.03 0.03"/>
@@ -61,7 +61,7 @@
           <color rgba="0.0 0.0 0.0 1.0"/>
         </material>
       </visual>
-      <collision name="${name}_post_collision">
+      <collision>
         <geometry>
           <cylinder radius="${post_radius}" length="${post_length}"/>
         </geometry>
@@ -86,7 +86,7 @@
           <mesh filename="package://vrx_gazebo/models/sensor_post/mesh/sensor_post_arm.dae"/>
         </geometry>
       </visual>
-      <collision name="${name}_post_arm_collision">
+      <collision>
         <origin xyz="0 0 0" rpy="${radians(-60)-pi/20} 0 ${-pi/2}"/>
         <geometry>
           <cylinder radius="0.008" length="0.065"/>

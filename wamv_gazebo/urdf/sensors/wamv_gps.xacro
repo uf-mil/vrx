@@ -7,13 +7,13 @@
           <mesh filename="package://wamv_gazebo/models/gps/mesh/gps.dae"/>
         </geometry>
       </visual>
-      <collision name="${name}_collision_base">
+      <collision>
         <origin xyz="0 0 0.025" rpy="0 0 0" />
         <geometry>
           <cylinder length="0.05" radius="0.015" />
         </geometry>
       </collision>
-      <collision name="${name}_collision_antenna">
+      <collision>
         <origin xyz="0 0 0.11" rpy="0 0 0" />
         <geometry>
           <cylinder length="0.1" radius="0.15" />

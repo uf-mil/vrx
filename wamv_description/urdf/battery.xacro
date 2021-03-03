@@ -8,7 +8,7 @@
           <mesh filename="package://vrx_gazebo/models/battery/mesh/battery.dae"/>
         </geometry>
       </visual>
-      <collision name="${prefix}_battery_collision">
+      <collision>
         <origin xyz="0 0 .15" rpy="0 0 0"/>
         <geometry>
           <box size=".6 .4 .31"/>
