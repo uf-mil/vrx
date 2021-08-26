@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(wamv_gazebo)
+
+# Set policy for CMake 3.1+. Use OLD policy to let FindBoost.cmake, dependency
+# of gazebo, use quoted variables in if()
+if(POLICY CMP0054)
+  cmake_policy(SET CMP0054 OLD)
+endif()
+
 find_package(catkin REQUIRED COMPONENTS
   wamv_description
   usv_gazebo_plugins
@@ -9,10 +16,17 @@ catkin_package(
   CATKIN_DEPENDS wamv_description usv_gazebo_plugins xacro
 )
 
+set(XACRO_INORDER)
+if(DEFINED ENV{ROS_DISTRO})
+  if($ENV{ROS_DISTRO} STREQUAL "kinetic")
+    set(XACRO_INORDER INORDER)
+  endif()
+endif()
+
 # Generate urdf files from xacro and install
 xacro_add_files(
   urdf/wamv_gazebo.urdf.xacro
-  INORDER INSTALL DESTINATION urdf
+  ${XACRO_INORDER} INSTALL DESTINATION urdf
 )
 
 # Install meshes and textures

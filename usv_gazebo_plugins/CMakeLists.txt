@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(usv_gazebo_plugins)
+
+# Set policy for CMake 3.1+. Use OLD policy to let FindBoost.cmake, dependency
+# of gazebo, use quoted variables in if()
+if(POLICY CMP0054)
+  cmake_policy(SET CMP0054 OLD)
+endif()
+
 find_package(catkin REQUIRED COMPONENTS gazebo_dev roscpp message_generation xacro wave_gazebo_plugins usv_msgs)
 find_package(Eigen3 REQUIRED)
 
@@ -97,10 +104,17 @@ install(TARGETS usv_gazebo_acoustic_pinger_plugin
   RUNTIME DESTINATION bin
 )
 
+set(XACRO_INORDER)
+if(DEFINED ENV{ROS_DISTRO})
+  if($ENV{ROS_DISTRO} STREQUAL "kinetic")
+    set(XACRO_INORDER INORDER)
+  endif()
+endif()
+
 # Generate demo world files from xacro and install
 xacro_add_files(
   worlds/buoyancy_plugin_demo.world.xacro
-  INORDER INSTALL DESTINATION worlds
+  ${XACRO_INORDER} INSTALL DESTINATION worlds
 )
 install(DIRECTORY worlds/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/worlds)

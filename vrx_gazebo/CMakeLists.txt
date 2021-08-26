@@ -7,24 +7,38 @@ if(NOT ERB_EXE_PATH)
   message(FATAL_ERROR "Could not find the `erb` tool.  Try `sudo apt-get install ruby`")
 endif()
 
-set (CMAKE_AUTOMOC ON)
-set (CMAKE_AUTOUIC ON)
+add_compile_options(-std=c++17)
 
-find_package (Qt5Widgets REQUIRED)
-find_package (Qt5Core REQUIRED)
-find_package (Protobuf REQUIRED)
-find_package (gazebo REQUIRED)
+# For Qt
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+
+# Set policy for CMake 3.1+. Use OLD policy to let FindBoost.cmake, dependency
+# of gazebo, use quoted variables in if()
+if(POLICY CMP0054)
+  cmake_policy(SET CMP0054 OLD)
+endif()
+# Use OLD policy to be able to use *_generate_services_cpp before they exist,
+# without error.
+if(POLICY CMP0046)
+  cmake_policy(SET CMP0046 OLD)
+endif()
+
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Protobuf REQUIRED)
+find_package(gazebo REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
+  gazebo_dev
+  geographic_msgs
   message_generation
+  roscpp
+  rospy
+  std_msgs
   wamv_gazebo
   wave_gazebo
   xacro
-  gazebo_dev
-  geographic_msgs
-  std_msgs
-  rospy
-  roscpp
 )
 
 ########################
@@ -53,6 +67,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS wamv_gazebo wave_gazebo xacro gazebo_dev geographic_msgs std_msgs message_runtime
+  LIBRARIES scoring_plugin
 )
 
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}") 
@@ -105,6 +120,36 @@ add_dependencies(placard_plugin
   dock_placard_msgs
 )
 install(TARGETS placard_plugin
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+# Plugin for controlling the ball shooter.
+add_library(ball_shooter_plugin src/ball_shooter_plugin.cc)
+target_link_libraries(placard_plugin
+  ${catkin_LIBRARIES}
+)
+add_dependencies(ball_shooter_plugin
+  ${catkin_EXPORTED_TARGETS}
+)
+install(TARGETS ball_shooter_plugin
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+# Plugin for controlling the animal buoys .
+add_library(follow_plugin src/follow_plugin.cc)
+target_link_libraries(follow_plugin
+  ${catkin_LIBRARIES}
+  waypoint_markers
+)
+add_dependencies(follow_plugin
+  ${catkin_EXPORTED_TARGETS}
+  waypoint_markers
+)
+install(TARGETS follow_plugin
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -164,6 +209,19 @@ install(TARGETS wayfinding_scoring_plugin
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+# Plugin for scoring gymkhana task
+add_library(gymkhana_scoring_plugin src/gymkhana_scoring_plugin.cc)
+target_link_libraries(gymkhana_scoring_plugin
+  ${catkin_LIBRARIES}
+  scoring_plugin
+)
+
+install(TARGETS gymkhana_scoring_plugin
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 # Plugin for scoring the scan and dock task.
 add_library(scan_dock_scoring_plugin src/scan_dock_scoring_plugin.cc)
 target_link_libraries(scan_dock_scoring_plugin
@@ -183,7 +241,7 @@ install(TARGETS scan_dock_scoring_plugin
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-if("${GAZEBO_MAJOR_VERSION}" GREATER "7")
+if(${GAZEBO_MAJOR_VERSION} GREATER 7)
   # Plugin for Task Info GUI Overlay
   add_library(gui_task_widget SHARED ${headers_MOC}
          	src/gui_task_widget.cc
@@ -196,7 +254,9 @@ if("${GAZEBO_MAJOR_VERSION}" GREATER "7")
     ${QT_LIBRARIES}
   )
   qt5_use_modules(gui_task_widget Widgets)
-  add_dependencies(gui_task_widget ${catkin_EXPORTED_TARGETS})
+  add_dependencies(gui_task_widget
+    ${catkin_EXPORTED_TARGETS}
+    vrx_gazebo_generate_messages_cpp)
   install(TARGETS gui_task_widget
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -217,7 +277,7 @@ install(TARGETS perception_scoring_plugin
 )
 
 # Dock base files that need to be processed with erb
-set (dock_base_erb_files
+set(dock_base_erb_files
   models/dock_2016_base/model.sdf.erb
   models/dock_2018_base/model.sdf.erb
   models/dock_2016_base_dynamic/model.sdf.erb
@@ -225,7 +285,7 @@ set (dock_base_erb_files
 )
 
 # Dock files that need to be processed with erb
-set (dock_erb_files
+set(dock_erb_files
   models/dock_2016/model.sdf.erb
   models/dock_2018/model.sdf.erb
   models/dock_2016_dynamic/model.sdf.erb
@@ -266,25 +326,35 @@ add_custom_target(dock_erb_generation ALL
     dock_base_erb_generation
 )
 
+set(XACRO_INORDER)
+if(DEFINED ENV{ROS_DISTRO})
+  if($ENV{ROS_DISTRO} STREQUAL "kinetic")
+    set(XACRO_INORDER INORDER)
+  endif()
+endif()
+
 # Generate world files from xacro and install
 xacro_add_files(
   worlds/example_course.world.xacro
+  worlds/example_course_2019.world.xacro
+  worlds/gymkhana.world.xacro
   worlds/navigation_task.world.xacro
   worlds/perception_task.world.xacro
   worlds/sandisland.world.xacro
+  worlds/sydneyregatta.world.xacro
   worlds/dock.world.xacro
   worlds/scan_and_dock.world.xacro
   worlds/stationkeeping_task.world.xacro
   worlds/wayfinding_task.world.xacro
   worlds/wind_test.world.xacro
   worlds/ocean.world.xacro
-  INORDER INSTALL DESTINATION worlds
+  ${XACRO_INORDER} INSTALL DESTINATION worlds
 )
 # Generate obstacle course
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/models/robotx_2018_qualifying_avoid_obstacles_buoys/model.sdf
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_avoid_obstacles_buoys
-  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_avoid_obstacles_buoys --seed 1337 --a3 6 --a5 7 --a7 7 > ${CMAKE_CURRENT_SOURCE_DIR}/models/robotx_2018_qualifying_avoid_obstacles_buoys/model.sdf
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_avoid_obstacles_buoys.py
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_avoid_obstacles_buoys.py --seed 1337 --a3 6 --a5 7 --a7 7 > ${CMAKE_CURRENT_SOURCE_DIR}/models/robotx_2018_qualifying_avoid_obstacles_buoys/model.sdf
 )
 add_custom_target(${PROJECT_NAME}_generate_obstacle_course_buoys ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/models/robotx_2018_qualifying_avoid_obstacles_buoys/model.sdf)
 
@@ -304,10 +374,15 @@ install(DIRECTORY models/
 install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 
+install(DIRECTORY include/
+  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.hh"
+)
+
 install(PROGRAMS scripts/spawn_wamv.bash
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-if (CATKIN_ENABLE_TESTING)
+if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
   add_rostest_gtest(sandisland_test
                     test/sandisland.test
@@ -316,7 +391,11 @@ if (CATKIN_ENABLE_TESTING)
 endif()
 
 # Python Scripts
-catkin_install_python(PROGRAMS bin/generate_wamv
+catkin_install_python(PROGRAMS
+    nodes/pinger_visualization.py
+    nodes/set_pinger_position.py
+    nodes/twist2thrust.py
+    nodes/key2thrust_angle.py
+    scripts/generate_worlds.py
+    scripts/generate_wamv.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
-
