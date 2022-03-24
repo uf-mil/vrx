@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<sdf version='1.6'>
+<model name='entrance_gate'>
+    <static>true</static>
+    <link name='base_link'>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <collision name='base_link_fixed_joint_lump__Child Link_collision'>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://entrance_gate/meshes/Child_Link.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='base_link_fixed_joint_lump__Child Link_visual'>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://entrance_gate/meshes/Child_Link.dae</uri>
+          </mesh>
+        </geometry>
+	<material>
+	    <script>
+	      <uri>model://entrance_gate/materials/scripts</uri>
+	      <uri>model://entrance_gate/materials/textures</uri>
+	      <name>gunmanMat/Diffuse</name>
+	    </script>
+	</material>
+      </visual>
+    </link>
+  </model>
+</sdf>

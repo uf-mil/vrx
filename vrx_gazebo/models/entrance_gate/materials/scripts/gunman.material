@@ -1,0 +1,14 @@
+material gunmanMat/Diffuse
+{
+    receive_shadows off
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                texture gunman.png
+            }
+        }
+    }
+}
