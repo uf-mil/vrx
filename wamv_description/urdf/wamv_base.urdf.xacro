@@ -131,4 +131,41 @@
     </inertial>
   </link>
 
+  <gazebo reference="${namespace}/drone_pad">
+    <material>Gazebo/Gray</material>
+  </gazebo>
+
+  <link name="${namespace}/drone_pad">
+
+    <visual>
+      <origin xyz="-1.35 0 1.25" rpy="0 0 0" />
+      <geometry>
+        <box size="1 1 0.05" />
+      </geometry>
+    </visual>
+
+     <!-- Top base -->
+    <collision>
+      <origin xyz="-1.35 0 1.25" rpy="0 0 0" />
+      <geometry>
+        <box size="1 1 0.05" />
+      </geometry>
+    </collision>
+
+    <inertial>
+      <!-- From WAM-V spec sheet -->
+      <!--TODO: add mass and inertia of this link whenever it is added to NaviGator-->
+      <mass value="0.0"/>
+      <inertia ixx="120.0" ixy="0.0" ixz="0.0" iyy="393" iyz="0.0" izz="446.0"/>
+    </inertial>
+
+  </link>
+
+  <joint name="${namespace}/dummy_joint2" type = "fixed">
+    <parent link="${namespace}/dummy_link"/>
+    <child link="${namespace}/drone_pad"/>
+  </joint>
+
+
+
 </robot>
