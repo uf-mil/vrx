@@ -216,7 +216,7 @@ void AcousticPinger::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   // setup the publisher that emulates what we will receive in robotx competition
   this->pingerVectorPub =
     this->rosNodeHandle->advertise<geometry_msgs::Vector3>(
-      "/pinger/boat_to_pinger_vector", 1);
+      "/wamv/sensors/pingers/pinger/boat_to_beacon_vector", 1);
 
   this->setPositionSub = this->rosNodeHandle->subscribe(
     setPositionTopicName, 1, &AcousticPinger::PingerPositionCallback, this);
