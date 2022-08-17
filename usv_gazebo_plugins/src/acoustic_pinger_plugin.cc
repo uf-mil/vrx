@@ -213,6 +213,11 @@ void AcousticPinger::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     this->rosNodeHandle->advertise<usv_msgs::RangeBearing>(
       std::string(topicName), 1);
 
+  // setup the publisher that emulates what we will receive in robotx competition
+  this->pingerVectorPub =
+    this->rosNodeHandle->advertise<geometry_msgs::Vector3>(
+      "/pinger/boat_to_pinger_vector", 1);
+
   this->setPositionSub = this->rosNodeHandle->subscribe(
     setPositionTopicName, 1, &AcousticPinger::PingerPositionCallback, this);
 
@@ -300,6 +305,14 @@ void AcousticPinger::Update()
 
     // publish range and bearing message.
     this->rangeBearingPub.publish(msg);
+
+    // publish direction vector msg
+    // negate x and y because orientation because gazebo frame is 180 rot of mil frame
+    geometry_msgs::Vector3 vector_msg;
+    vector_msg.x = direction.X();
+    vector_msg.y = direction.Y();
+    vector_msg.z = direction.Z();
+    this->pingerVectorPub.publish(vector_msg);
   }
 }
 
