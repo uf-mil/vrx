@@ -21,6 +21,10 @@
 #include <gazebo/physics/Model.hh>
 #include "vrx_gazebo/scoring_plugin.hh"
 
+
+// cppcheck-suppress unknownMacro
+GZ_REGISTER_WORLD_PLUGIN(ScoringPlugin)
+
 /////////////////////////////////////////////////
 ScoringPlugin::ScoringPlugin()
     : WorldPlugin(), gzNode(new gazebo::transport::Node())
