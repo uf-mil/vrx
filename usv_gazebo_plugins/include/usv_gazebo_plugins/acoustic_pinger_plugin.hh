@@ -19,6 +19,7 @@
 #define VRX_GAZEBO_ACOUSTIC_PINGER_PLUGIN_HH_
 
 #include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/Vector3Stamped.h>
 #include <ros/ros.h>
 #include <memory>
 #include <mutex>

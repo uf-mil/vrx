@@ -215,7 +215,7 @@ void AcousticPinger::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   // setup the publisher that emulates what we will receive in robotx competition
   this->pingerVectorPub =
-    this->rosNodeHandle->advertise<geometry_msgs::Vector3>(
+    this->rosNodeHandle->advertise<geometry_msgs::Vector3Stamped>(
       "/wamv/sensors/pingers/pinger/boat_to_beacon_vector", 1);
 
   this->setPositionSub = this->rosNodeHandle->subscribe(
@@ -308,10 +308,11 @@ void AcousticPinger::Update()
 
     // publish direction vector msg
     // negate x and y because orientation because gazebo frame is 180 rot of mil frame
-    geometry_msgs::Vector3 vector_msg;
-    vector_msg.x = direction.X();
-    vector_msg.y = direction.Y();
-    vector_msg.z = direction.Z();
+    geometry_msgs::Vector3Stamped vector_msg;
+    vector_msg.header.frame_id = "wamv/base_link";
+    vector_msg.vector.x = directionSensorFrame.X();
+    vector_msg.vector.y = directionSensorFrame.Y();
+    vector_msg.vector.z = directionSensorFrame.Z();
     this->pingerVectorPub.publish(vector_msg);
   }
 }
