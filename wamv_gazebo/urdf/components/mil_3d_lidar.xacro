@@ -36,7 +36,7 @@
     <xacro:property name="post_arm_to_lidar_z" value="0.05"/>
 
     <!-- 3d lidar sensor -->
-    <link name="${name}_link">
+    <link name="${name}">
       <visual name="${name}_visual">
         <origin xyz="0 0 -0.035" rpy="0 0 0"/>
         <geometry>
@@ -140,10 +140,10 @@
     <joint name="${namespace}/${name}_post_arm_to_${name}_joint" type="fixed">
       <origin xyz="${post_arm_to_lidar_x} 0 ${post_arm_to_lidar_z}" rpy="${R} ${P} ${Y-post_Y}" />
       <parent link="${name}_post_arm_link" />
-      <child link="${name}_link" />
+      <child link="${name}" />
     </joint>
 
-    <gazebo reference="${name}_link">
+    <gazebo reference="${name}">
       <sensor type="gpu_ray" name="${name}_sensor">
         <update_rate>${update_rate}</update_rate>
         <ray>
@@ -173,8 +173,8 @@
         </ray>
         <plugin name="${name}_plugin" filename="libgazebo_ros_velodyne_gpu_laser.so">
           <topicName>velodyne_points</topicName>
-          <frameName>${name}_link</frameName>
-          <min_intensity>0</min_intensity>velodyne
+	  <frameName>${name}</frameName>
+          <min_intensity>0</min_intensity>
         </plugin>
       </sensor>
     </gazebo>
