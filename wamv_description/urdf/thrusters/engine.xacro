@@ -60,18 +60,6 @@
       <limit effort="400" velocity="100" />
       <dynamics friction="0.05" damping="0.05" />
     </joint>
-
-    <transmission name="${namespace}/${prefix}_thruster_transmission">
-      <type>transmission_interface/SimpleTransmission</type>
-      <actuator name="${namespace}/${prefix}_motor">
-        <!-- Linear Mapping from force to actuator "effort" (motor command) such that
-             -->
-        <mechanicalReduction>1.35</mechanicalReduction>
-      </actuator>
-      <joint name="${namespace}/${prefix}_engine_propeller_joint">
-        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      </joint>
-    </transmission>
   </xacro:macro>
 </robot>
 
