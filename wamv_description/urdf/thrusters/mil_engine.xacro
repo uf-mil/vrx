@@ -66,7 +66,7 @@
       <actuator name="${prefix}_motor">
         <!-- Linear Mapping from force to actuator "effort" (motor command) such that
              -->
-        <mechanicalReduction>0</mechanicalReduction>
+        <mechanicalReduction>1.35</mechanicalReduction>
       </actuator>
       <joint name="${prefix}_engine_propeller_joint">
         <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
